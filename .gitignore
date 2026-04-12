@@ -1,0 +1,14 @@
+# Arduino
+*.elf
+*.hex
+build/
+# IDE
+.vscode/
+*.suo
+# Proteus
+*.pdsbak
+# C# Build
+[Bb]in/
+[Oo]bj/
+*.exe
+*.dll
