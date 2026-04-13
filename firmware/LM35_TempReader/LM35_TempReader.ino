@@ -1,33 +1,32 @@
 // ---------------------------------------------------------
 // Tên dự án: Hệ thống giám sát nhiệt độ LM35
 // Tệp tin:   LM35_TempReader.ino
-// Chức năng: Đọc giá trị nhiệt độ từ cảm biến LM35 (Kênh A0)
+// Chức năng: Đọc nhiệt độ 2 kênh (A0, A1) và xuất định dạng CSV
 // ---------------------------------------------------------
 
-const int LM35_PIN = A0; // Khai báo chân Analog A0 nối với chân Vout của LM35
+const int LM35_PIN_1 = A0; // Cảm biến 1 nối với A0
+const int LM35_PIN_2 = A1; // Cảm biến 2 nối với A1
 
 void setup() {
-  // Khởi tạo giao tiếp Serial với tốc độ baud 9600 để gửi dữ liệu lên PC
   Serial.begin(9600); 
-  Serial.println("=== He Thong Giam Sat Nhiet Do LM35 ===");
+  // In dòng tiêu đề (Header) cho file CSV
+  Serial.println("Temp1,Temp2");
 }
 
 void loop() {
-  // Bước 1: Đọc giá trị Analog từ cảm biến (Độ phân giải 10-bit: 0 - 1023)
-  int analogValue = analogRead(LM35_PIN);
+  // Bước 1: Đọc giá trị Analog từ 2 kênh
+  int adc1 = analogRead(LM35_PIN_1);
+  int adc2 = analogRead(LM35_PIN_2);
 
-  // Bước 2: Chuyển đổi giá trị Analog sang điện áp (Volt)
-  // Điện áp tham chiếu của Arduino Uno là 5.0V
-  float voltage = analogValue * (5.0 / 1023.0);
+  // Bước 2: Chuyển đổi sang độ C (sử dụng công thức đã tối ưu)
+  float temp1 = (adc1 * 500.0) / 1023.0;
+  float temp2 = (adc2 * 500.0) / 1023.0;
 
-  // Bước 3: Tính toán nhiệt độ (Độ C)
-  // Theo datasheet, độ nhạy của LM35 là 10mV/độ C (tương đương 0.01V/độ C)
-  float temperatureC = voltage / 0.01;
+  // Bước 3: Gửi dữ liệu theo chuẩn CSV (Giá trị 1, Giá trị 2)
+  Serial.print(temp1);
+  Serial.print(","); // Chèn dấu phẩy ngăn cách
+  Serial.println(temp2); // println ở giá trị cuối để tự động xuống dòng
 
-  // Bước 4: Gửi định dạng dữ liệu lên phần mềm PC (C#)
-  Serial.print("TEMP:"); // Tiền tố để app C# dễ dàng cắt chuỗi (parsing)
-  Serial.println(temperatureC);
-
-  // Tạm dừng 1 giây (1000ms) để ổn định hệ thống trước chu kỳ đọc tiếp theo
+  // Tạm dừng 1 giây
   delay(1000);
 }
